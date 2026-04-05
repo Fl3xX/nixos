@@ -30,13 +30,16 @@ let
     else
       toString value;
 
+  toKeyValue = generators.toKeyValue {
+    mkKeyValue = generators.mkKeyValueDefault { } " = ";
+  };
+
   fpmCfgFile =
     pool: poolOpts:
     pkgs.writeText "phpfpm-${pool}.conf" ''
       [global]
       ${concatStringsSep "\n" (mapAttrsToList (n: v: "${n} = ${toStr v}") cfg.settings)}
       ${optionalString (cfg.extraConfig != null) cfg.extraConfig}
-
       [${pool}]
       ${concatStringsSep "\n" (mapAttrsToList (n: v: "${n} = ${toStr v}") poolOpts.settings)}
       ${concatStringsSep "\n" (mapAttrsToList (n: v: "env[${n}] = ${toStr v}") poolOpts.phpEnv)}
@@ -47,7 +50,8 @@ let
     poolOpts:
     pkgs.runCommand "php.ini"
       {
-        inherit (poolOpts) phpOptions;
+        inherit (poolOpts) phpPackage;
+        phpOptions = toKeyValue cfg.phpOptions;
         preferLocalBuild = true;
         __structuredAttrs = true;
       }
@@ -96,9 +100,21 @@ let
         };
 
         phpOptions = mkOption {
-          type = types.lines;
+          type =
+            with types;
+            attrsOf (oneOf [
+              str
+              int
+            ]);
+          default = { };
+          example = literalExpression ''
+            {
+              "date.timezone" = "CET";
+            }
+          '';
           description = ''
-            "Options appended to the PHP configuration file {file}`php.ini` used for this PHP-FPM pool."
+            Structured options appended to the PHP configuration file
+            {file}`php.ini` used for this PHP-FPM pool.
           '';
         };
 
@@ -222,13 +238,21 @@ in
       phpPackage = mkPackageOption pkgs "php" { };
 
       phpOptions = mkOption {
-        type = types.lines;
-        default = "";
-        example = ''
-          date.timezone = "CET"
+        type =
+          with types;
+          attrsOf (oneOf [
+            str
+            int
+          ]);
+        default = { };
+        example = literalExpression ''
+          {
+            "date.timezone" = "CET";
+          }
         '';
         description = ''
-          Options appended to the PHP configuration file {file}`php.ini`.
+          Structured options appended to the PHP configuration file
+          {file}`php.ini`.
         '';
       };
 
