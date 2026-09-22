@@ -83,10 +83,16 @@
 
       networking.firewall.checkReversePath = lib.mkIf cfg.tunMode (lib.mkDefault "loose");
 
-      systemd.services.clash-verge = lib.mkIf cfg.serviceMode {
+      systemd.services.clash-verge-service = lib.mkIf cfg.serviceMode {
         enable = true;
         description = "Clash Verge Service Mode";
         serviceConfig = {
+          ExecStartPre = pkgs.writeShellScript "clash-verge-install-core" ''
+            ${lib.getExe' pkgs.coreutils "install"} -d -m 0700 /var/lib/clash-verge-service/cores
+            ${lib.getExe' pkgs.coreutils "install"} -m 0755 \
+              ${cfg.package}/bin/verge-mihomo \
+              /var/lib/clash-verge-service/cores/verge-mihomo
+          '';
           ExecStart = "${cfg.package}/bin/clash-verge-service";
           Restart = "on-failure";
           Group = cfg.group;
@@ -104,7 +110,7 @@
           ProtectControlGroups = true;
           LockPersonality = true;
           RestrictRealtime = true;
-          RuntimeDirectory = "clash-verge-rev";
+          RuntimeDirectory = "clash-verge-service";
           StateDirectory = "clash-verge-service";
           ProtectClock = true;
           MemoryDenyWriteExecute = true;
@@ -114,10 +120,11 @@
             "AF_INET AF_INET6 AF_NETLINK AF_PACKET AF_UNIX"
           ];
           CapabilityBoundingSet = [
-            "CAP_NET_ADMIN CAP_NET_RAW CAP_SYS_ADMIN CAP_DAC_OVERRIDE CAP_SETUID CAP_SETGID CAP_CHOWN CAP_MKNOD"
+            "CAP_NET_ADMIN CAP_NET_RAW CAP_SYS_ADMIN CAP_DAC_OVERRIDE CAP_FOWNER CAP_SETUID CAP_SETGID CAP_CHOWN CAP_MKNOD"
           ];
           SystemCallFilter = [
-            "~@aio @chown @clock @cpu-emulation @debug @keyring @memlock @module @mount @obsolete @pkey @privileged @raw-io @reboot @sandbox @setuid @swap @timer"
+            "~@aio @clock @cpu-emulation @debug @keyring @memlock @module @mount @obsolete @pkey @privileged @raw-io @reboot @sandbox @setuid @swap @timer"
+            "@chown"
           ];
           SystemCallErrorNumber = "EPERM";
         };
