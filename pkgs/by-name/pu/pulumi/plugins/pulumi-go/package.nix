@@ -9,7 +9,7 @@ buildGoModule (finalAttrs: {
 
   sourceRoot = "${finalAttrs.src.name}/sdk/go/pulumi-language-go";
 
-  vendorHash = "sha256-yKW2XGjNVFPBhM63odkSx8953HTwDz0aeDK9icIJ5YQ=";
+  vendorHash = "sha256-yhIeHUbatM9u99X9tbK+/bR8gwMO2fM05Klcnadmqq8=";
 
   ldflags = [
     "-s"
