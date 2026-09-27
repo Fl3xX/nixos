@@ -32,52 +32,32 @@ nix-repl> :doc lib.mapAttrsToList
 
 See [Document structure](#document-structure) for a structural template.
 
+## Building and navigating documentation locally
 
-The rendering tool is [nixos-render-docs](../pkgs/by-name/ni/nixos-render-docs), sometimes abbreviated `nrd`.
-
-## Contributing to this documentation
-
-You can quickly check your edits with `nix-build`:
-
-```ShellSession
-$ cd /path/to/nixpkgs
-$ nix-build doc
-```
-
-If the build succeeds, the manual will be in `./result/share/doc/nixpkgs/manual.html`.
+The Nixpkgs manual is rendered by [nixos-render-docs](https://github.com/nixos/nixpkgs/tree/master/pkgs/by-name/ni/nixos-render-docs/) (sometimes abbreviated `nrd`) and its index is the `./nav.json` file.
 
 ### Development environment
 
-To reduce repetition, consider using tools from the documentation development environment:
+Consider using the tooling in the documentation development environment.
 
-```ShellSession
-$ cd /path/to/nixpkgs/doc
-$ nix-shell
-```
+Within `/path/to/nixpkgs/doc`, run `nix-shell`.
 
-To load the documentation development environment automatically when entering that directory:
+### Live preview
 
-1. Install [`nix-direnv`](https://search.nixos.org/packages?channel=unstable&query=nix-direnv#show=nix-direnv)
-1. Set up direnv in the documentation directory:
+Run [`devmode`](../pkgs/by-name/de/devmode/README.md) for a live preview while editing the manual.
 
-   ```ShellSession
-   $ cd doc
-   $ echo "use nix" > .envrc
-   $ direnv allow
-   ```
+Changes to the renderer `pkgs/by-name/ni/nixos-render-docs` need a manual restart: run `devmode` again.
 
-#### Live preview
+### Building the docs
 
-Run [`devmode`](../pkgs/by-name/de/devmode/README.md) for a live preview while editing the manual: it rebuilds on every change and reloads the page in your browser automatically.
-
-Changes to the renderer 'pkgs/by-name/ni/nixos-render-docs' need a manual restart. Run: `devmode` again.
+To build the documentation, run `nix-build doc`. If it succeeds, the manual will be in `./result/share/doc/nixpkgs/manual.html`.
 
 ### Testing redirects
 
 Once you have a successful build, you can open the relevant HTML (path mentioned above) in a browser along with the anchor, and observe the redirection.
 
-Note that if you already loaded the page and *then* input the anchor, you will need to perform a reload.
-This is because browsers do not re-run client JS code when only the anchor has changed.
+Note that if you already loaded the page and *then* input the anchor, you will need to perform a reload. This is because browsers do not re-run client JS code when only the anchor has changed.
+
 
 ## Syntax
 
