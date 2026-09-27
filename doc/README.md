@@ -1,6 +1,6 @@
 # Contributing to the Nixpkgs manual
 
-This directory houses the source files for the Nixpkgs manual.
+This directory houses the source files for the Nixpkgs manual, including [Getting Started](https://github.com/NixOS/nixpkgs/tree/master/doc/getting-started) guides, [Onboarding guides](https://github.com/nixOS/nixpkgs/blob/master/doc/using-nixpkgs.md) for using Nixpkgs, and the [language frameworks](https://github.com/NixOS/nixpkgs/tree/master/doc/languages-frameworks) it ships.
 
 There are [Unstable (from master)](https://nixos.org/manual/nixpkgs/unstable/) and [Stable (from latest release)](https://nixos.org/manual/nixpkgs/stable/) renderings.
 
@@ -14,9 +14,6 @@ There are [Unstable (from master)](https://nixos.org/manual/nixpkgs/unstable/) a
 Consult the [style guide](./styleguide.md) for guidance on writing documentation.
 
 Follow Nixpkgs' [commit conventions](https://github.com/NixOS/nixpkgs?tab=contributing-ov-file#commit-conventions).
-
-Documentation about Nixpkgs belongs here.
-This includes getting started guides and onboarding guides for *using* Nixpkgs and the language frameworks it ships.
 
 ## Building and navigating documentation locally
 
