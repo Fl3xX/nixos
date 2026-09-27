@@ -160,7 +160,8 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   meta = {
-    description = ''
+    description = "First-person arena shooter";
+    longDescription = ''
       Unreal Tournament 2004 with OldUnreal patch ${patch-version}.
       Pin ut2004Packages.image to avoid downloading the disc image when build tools are updated (for example libarchive) at the cost of extra disk space.
       To save disk space, pin ut2004Packages.data instead of ut2004Packages.image to avoid downloading the disc image when the patch is updated.
