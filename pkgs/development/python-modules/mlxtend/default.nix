@@ -44,6 +44,10 @@ buildPythonPackage rec {
     "test_invalid_labels_1"
     "test_default"
     "test_nullability"
+    # see upstream issue https://github.com/rasbt/mlxtend/issues/1200
+    # test failures after updating scikit-learn 1.8.0->1.9.0
+    "test_sample_weight"
+    "test_fit_params"
   ];
 
   disabledTestPaths = [
