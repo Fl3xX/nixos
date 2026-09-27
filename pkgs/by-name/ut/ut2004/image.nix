@@ -21,8 +21,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir $out
-    cp $src $out/ut2004.iso
+    install -D $src $out/ut2004.iso
 
     runHook postInstall
   '';
