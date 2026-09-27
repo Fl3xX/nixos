@@ -16,15 +16,6 @@
 let
   gameData = ut2004Packages.data;
   patch-version = "3374-preview-23";
-  patch =
-    rec {
-      aarch64-linux = x86_64-linux;
-      x86_64-linux = fetchurl {
-        url = "https://github.com/OldUnreal/UT2004Patches/releases/download/${patch-version}/OldUnreal-UT2004Patch3374-Linux-094b94dc.tar.bz2";
-        hash = "sha256-F56kPIgxv/FHAFhQzTc8DsK3Dc9vhBwhCcFSXvEa1NM=";
-      };
-    }
-    .${stdenv.hostPlatform.system} or (throw "Unsupported platform: ${stdenv.hostPlatform.system}");
   systemDir =
     {
       aarch64-linux = "SystemARM64";
@@ -39,7 +30,10 @@ stdenv.mkDerivation (finalAttrs: {
   __structuredAttrs = true;
   strictDeps = true;
 
-  src = patch;
+  src = fetchurl {
+    url = "https://github.com/OldUnreal/UT2004Patches/releases/download/${patch-version}/OldUnreal-UT2004Patch3374-Linux-094b94dc.tar.bz2";
+    hash = "sha256-F56kPIgxv/FHAFhQzTc8DsK3Dc9vhBwhCcFSXvEa1NM=";
+  };
 
   buildInputs = [
     gameData
@@ -76,7 +70,7 @@ stdenv.mkDerivation (finalAttrs: {
     cp --no-preserve=mode -vrs ${gameData}/US_License.int ut2004/System
 
     # Patch.
-    bsdtar --unlink-first -xf "${patch}" -C ut2004
+    bsdtar --unlink-first -xf "$src" -C ut2004
 
     # Remove files superseded by the patch.
     # https://github.com/OldUnreal/FullGameInstallers/blob/748525188b80f47138f19af6c8c6899230cb214e/Linux/install-ut2004.sh#L2169-L2194
