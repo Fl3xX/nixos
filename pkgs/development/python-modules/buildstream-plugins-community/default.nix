@@ -3,6 +3,7 @@
   buildPythonPackage,
   fetchFromGitLab,
   gitUpdater,
+  nixosTests,
   setuptools,
   setuptools-scm,
 
@@ -48,12 +49,19 @@ buildPythonPackage (finalAttrs: {
   # always has `buildstream` in its environment when imported; drop it from
   # the wheel's declared dependencies instead of propagating it as a
   # `dependencies` entry, to avoid pulling a second `buildstream` closure
-  # into consumers that already bundle it.
+  # into consumers that already bundle it. Its test suite, which does need
+  # `buildstream` present, and needs real `/dev/fuse` access that the Nix
+  # build sandbox doesn't provide, is run as a NixOS VM test instead; see
+  # `passthru.tests.pytest`.
   pythonRemoveDeps = [ "buildstream" ];
 
   pythonImportsCheck = [ "buildstream_plugins_community" ];
 
-  passthru.updateScript = gitUpdater { };
+  passthru = {
+    updateScript = gitUpdater { };
+
+    tests.pytest = nixosTests.buildstream-plugins-community;
+  };
 
   meta = {
     changelog = "https://gitlab.com/BuildStream/buildstream-plugins-community/-/blob/${finalAttrs.src.tag}/NEWS";
