@@ -12,7 +12,7 @@ It replaces strings in `src` as specified by the `substitutions` argument.
 In a build script, the line:
 
 ```bash
-substitute $infile $outfile --replace-fail @foo@ ${foopkg}/bin/foo
+substitute $infile $outfile --replace-fail @foo@ ${lib.getExe foopkg}
 ```
 
 is equivalent to:
@@ -24,7 +24,7 @@ substitute {
   substitutions = [
     "--replace"
     "@foo@"
-    "${foopkg}/bin/foo"
+    (lib.getExe foopkg)
   ];
 }
 ```
