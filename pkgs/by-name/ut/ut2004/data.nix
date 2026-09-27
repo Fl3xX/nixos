@@ -19,13 +19,21 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   unpackPhase = ''
+    runHook preUnpack
+
     mkdir cabs
     bsdtar -xvf "${ut2004Packages.image}/ut2004.iso" -C cabs --strip-components 1 'Disk?/*.cab' 'Disk?/*.hdr'
     unshield -d data x cabs/data1.cab
+
+    runHook postUnpack
   '';
 
   installPhase = ''
+    runHook preInstall
+
     mv data $out
+
+    runHook preInstall
   '';
 
   meta = {

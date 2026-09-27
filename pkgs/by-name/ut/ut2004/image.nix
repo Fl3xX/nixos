@@ -19,8 +19,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   dontUnpack = true;
 
   installPhase = ''
+    runHook preInstall
+
     mkdir $out
     cp $src $out/ut2004.iso
+
+    runHook postInstall
   '';
 
   meta = {

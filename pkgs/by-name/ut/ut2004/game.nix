@@ -56,6 +56,8 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   unpackPhase = ''
+    runHook preUnpack
+
     # Install files to their (relative) final location.
     # https://github.com/OldUnreal/FullGameInstallers/blob/748525188b80f47138f19af6c8c6899230cb214e/Linux/install-ut2004.sh#L2087-L2155.
     mkdir -p ut2004/System
@@ -119,9 +121,13 @@ stdenv.mkDerivation (finalAttrs: {
     magick -background none "$icon_src[5]" icons/hicolor/16x16/ut2004.png
     magick -background none "$icon_src[7]" icons/hicolor/32x32/ut2004.png
     magick -background none "$icon_src[6]" icons/hicolor/48x48/ut2004.png
+
+    runHook postUnpack
   '';
 
   installPhase = ''
+    runHook preInstall
+
     # Install game data.
     mkdir -p "$out"/opt
     mv ut2004 "$out"/opt
