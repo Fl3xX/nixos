@@ -19,7 +19,11 @@ buildGo127Module (finalAttrs: {
     owner = "cli";
     repo = "cli";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-EoKF2m5sZP+uQ5AVOKkFqSCACfkeUc7vnH8PHWCO6FE=";
+    hash = "sha256-0DM+iQe9wGTAJWarK0rxyPLg6yFiPWwCTlPpWX8OHXI=";
+
+    postCheckout = ''
+      git -C "$out" log -1 --pretty=%ct > $out/SOURCE_DATE_EPOCH
+    '';
   };
 
   vendorHash = "sha256-4KYQBgMNc/sI0mbcXSfJ7A/77VAS6NM8TOzQ3w7AlK8=";
@@ -29,13 +33,23 @@ buildGo127Module (finalAttrs: {
     makeWrapper
   ];
 
-  # N.B.: using the Makefile is intentional.
-  # We pass "nixpkgs" for build.Date to avoid `gh --version` reporting a very old date.
-  buildPhase = ''
-    runHook preBuild
-    make GO_LDFLAGS="-X github.com/cli/cli/v${lib.versions.major finalAttrs.version}/internal/build.Date=nixpkgs" GH_VERSION=${finalAttrs.version} bin/gh ${lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) "manpages"}
-    runHook postBuild
+  # N.B.: using make (via the generic buildPhase) is intentional.
+  buildPhase = null;
+
+  # The custom build script (script/build.go) invoked by make will pick up SOURCE_DATE_EPOCH.
+  # It is used as the build date given by gh --version.
+  postPatch = ''
+    export SOURCE_DATE_EPOCH=$(cat SOURCE_DATE_EPOCH)
   '';
+
+  makeFlags = [
+    "bin/gh"
+  ]
+  ++ lib.optionals (stdenv.buildPlatform.canExecute stdenv.hostPlatform) [
+    "manpages"
+  ];
+
+  env.GH_VERSION = finalAttrs.version;
 
   installPhase = ''
     runHook preInstall
