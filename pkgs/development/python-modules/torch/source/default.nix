@@ -1,5 +1,5 @@
 {
-  stdenv,
+  gcc15Stdenv,
   lib,
   fetchFromGitHub,
   fetchFromGitLab,
@@ -69,7 +69,7 @@
   hypothesis,
   psutil,
   # ROCm build and `torch.compile` requires `triton`
-  tritonSupport ? (!stdenv.hostPlatform.isDarwin),
+  tritonSupport ? (!gcc15Stdenv.hostPlatform.isDarwin),
   triton,
 
   # TODO: 1. callPackage needs to learn to distinguish between the task
@@ -85,7 +85,7 @@
 
   # Disable MKLDNN on aarch64-darwin, it negatively impacts performance,
   # this is also what official pytorch build does
-  mklDnnSupport ? !(stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64),
+  mklDnnSupport ? !(gcc15Stdenv.hostPlatform.isDarwin && gcc15Stdenv.hostPlatform.isAarch64),
 
   # virtual pkg that consistently instantiates blas across nixpkgs
   # See https://github.com/NixOS/nixpkgs/pull/83888
@@ -246,7 +246,7 @@ let
 
   brokenConditions = attrsets.filterAttrs (_: cond: cond) {
     "CUDA and ROCm are mutually exclusive" = cudaSupport && rocmSupport;
-    "CUDA is not targeting Linux" = cudaSupport && !stdenv.hostPlatform.isLinux;
+    "CUDA is not targeting Linux" = cudaSupport && !gcc15Stdenv.hostPlatform.isLinux;
     "Unsupported CUDA version" =
       cudaSupport
       && !(builtins.elem cudaPackages.cudaMajorVersion [
@@ -280,7 +280,9 @@ let
     echo "# Update using: unroll-src [version]"
   '';
 
-  stdenv' = if cudaSupport then cudaPackages.backendStdenv else stdenv;
+  # gcc15Stdenv avoids a build failure for pkgsRocm.python3Packages.torch
+  # see https://github.com/NixOS/nixpkgs/pull/562330
+  stdenv' = if cudaSupport then cudaPackages.backendStdenv else gcc15Stdenv;
 in
 let
   # From here on, `stdenv` shall be `stdenv'`.
