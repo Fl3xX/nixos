@@ -37,6 +37,8 @@ lib.packagesFromDirectoryRecursive {
 
   lua = callPackage ./manual-packages/lua { inherit (pkgs) lua; };
 
+  macaulay2 = callPackage ./manual-packages/macaulay2 { inherit (pkgs) macaulay2; };
+
   straight = callPackage ./manual-packages/straight { inherit (pkgs) git; };
 
   structured-haskell-mode = self.shm;
