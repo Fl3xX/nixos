@@ -27922,6 +27922,12 @@
     githubId = 1181362;
     name = "Stefan Junker";
   };
+  stevelr = {
+    email = "stevelr.git@pm.me";
+    github = "stevelr";
+    githubId = 15311467;
+    name = "stevelr";
+  };
   stevenroose = {
     email = "github@stevenroose.org";
     github = "stevenroose";
