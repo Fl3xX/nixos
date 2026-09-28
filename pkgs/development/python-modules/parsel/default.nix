@@ -15,12 +15,12 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "parsel";
-  version = "1.11.0";
+  version = "1.12.0";
   pyproject = true;
 
   src = fetchPypi {
     inherit (finalAttrs) pname version;
-    hash = "sha256-WSX+CH6xb8QEp+2R4x4sHiqbIw2ktk802BNYwNDifog=";
+    hash = "sha256-Jdq88JV4w9Vx2QXeRCgZTPkyzhxzbYlhwjiGlWB04zA=";
   };
 
   build-system = [ hatchling ];
