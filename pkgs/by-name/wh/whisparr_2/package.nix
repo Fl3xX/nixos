@@ -45,6 +45,9 @@ stdenv.mkDerivation rec {
     inherit hash;
   };
 
+  __structuredAttrs = true;
+  strictDeps = true;
+
   nativeBuildInputs = [ makeWrapper ];
 
   runtimeLibs = lib.makeLibraryPath [
