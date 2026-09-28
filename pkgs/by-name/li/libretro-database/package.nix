@@ -16,6 +16,9 @@ stdenvNoCC.mkDerivation {
     hash = "sha256-acbQgw3G5RwVzEGll82//dKA4pP/47R2kIJ4Ty4p/ME=";
   };
 
+  strictDeps = true;
+  __structuredAttrs = true;
+
   dontConfigure = true;
   dontBuild = true;
 
