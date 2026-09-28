@@ -34,6 +34,7 @@
 
   storeDir ? "/nix/store",
   stateDir ? "/nix/var",
+  logDir ? "/nix/var/log/nix",
   confDir ? "/etc",
 }:
 let
@@ -71,6 +72,7 @@ let
           inherit
             storeDir
             stateDir
+            logDir
             confDir
             ;
 
