@@ -59,6 +59,7 @@
   withHtml ? true,
   xpra-html5,
   udevCheckHook,
+  versionCheckHook,
 }:
 
 let
@@ -104,7 +105,9 @@ in
 effectiveBuildPythonApplication rec {
   pname = "xpra";
   version = "6.5.4";
-  format = "setuptools";
+  pyproject = true;
+
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "Xpra-org";
@@ -133,6 +136,7 @@ effectiveBuildPythonApplication rec {
   };
 
   nativeBuildInputs = [
+    python3.pkgs.setuptools
     cython
     gobject-introspection
     pkg-config
@@ -140,7 +144,7 @@ effectiveBuildPythonApplication rec {
     pandoc
     udevCheckHook
   ]
-  ++ lib.optionals withNvenc [ cudaPackages.cudatoolkit ];
+  ++ lib.optionals withNvenc [ cudaPackages.cuda_nvcc ];
 
   buildInputs = [
     libx11
@@ -282,9 +286,9 @@ effectiveBuildPythonApplication rec {
     ln -s ${xpra-html5}/share/xpra/www $out/share/xpra/www;
   '';
 
-  # doCheck = false;
-
   enableParallelBuilding = true;
+
+  nativeCheckInputs = [ versionCheckHook ];
 
   passthru = {
     inherit xf86videodummy;
