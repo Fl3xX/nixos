@@ -25,24 +25,16 @@ in
 
   meta.maintainers = with pkgs.lib.maintainers; [ shymega ];
 
-  nodes.machine =
+  containers.machine =
     { pkgs, ... }:
     {
       # buildbox-casd finds `buildbox-fuse` on PATH and defaults to real
       # FUSE-based staging, which needs `/dev/fuse` and a working mount
-      # path that the Nix build sandbox can't provide. Running here as a
-      # VM test instead exercises the real FUSE-backed path, rather than
-      # forcing the hardlink/copy stager.
-      programs.fuse.enable = true;
-
-      # The default "auto" diskSize only sizes the root filesystem to fit
-      # the system closure, with no scratch space; the suite builds real
-      # CAS/cache artifacts under pytest's basetemp (`./tmp`, per
-      # setup.cfg) for hundreds of parametrized cases, which exhausts that
-      # in a few minutes (`OSError: could not create numbered dir`).
-      virtualisation.diskSize = 32768;
-      virtualisation.memorySize = 2048;
-
+      # path. `/dev/fuse` is bind-mounted in from the outer Nix build
+      # sandbox below; running as root in the container means we don't
+      # need the setuid `fusermount3` wrapper that `programs.fuse.enable`
+      # would otherwise install (setuid wrappers can't be created in a
+      # systemd-nspawn container within the Nix sandbox).
       environment.systemPackages = [
         (pkgs.python3.withPackages (
           ps: with ps; [
@@ -59,8 +51,13 @@ in
         ))
         bst
         pkgs.buildbox
+        pkgs.fuse3
         pkgs.gitMinimal
       ];
+
+      # Bind-mount the host's (i.e. the Nix build sandbox's) /dev/fuse
+      # device node into the container so buildbox-fuse can use it.
+      virtualisation.systemd-nspawn.options = [ "--bind=/dev/fuse" ];
     };
 
   testScript = ''
