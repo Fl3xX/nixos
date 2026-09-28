@@ -2033,7 +2033,7 @@ in
   webhook = runTest ./webhook.nix;
   weblate = runTest ./web-apps/weblate.nix;
   wg-access-server = runTest ./wg-access-server.nix;
-  whisparr = runTest ./whisparr.nix;
+  whisparr_2 = runTest ./whisparr_2.nix;
   whisparr_3 = runTest ./whisparr_3.nix;
   whoami = runTest ./whoami.nix;
   whois = runTest ./whois.nix;

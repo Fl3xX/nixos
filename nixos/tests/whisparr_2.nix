@@ -1,11 +1,11 @@
 {
-  name = "whisparr";
+  name = "whisparr_2";
   meta.maintainers = [ ];
 
   nodes.machine = { pkgs, ... }: {
     services.whisparr = {
       enable = true;
-      package = pkgs.whisparr;
+      package = pkgs.whisparr_2;
     };
   };
 
