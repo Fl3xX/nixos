@@ -7,13 +7,13 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "clash-verge-service-ipc";
-  version = "2.3.3";
+  version = "2.7.4";
 
   src = fetchFromGitHub {
     owner = "clash-verge-rev";
     repo = "clash-verge-service-ipc";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-/kr0C+4bhal7DqKudtZvhPYUyn6xbxQw57g6ieJV64w=";
+    hash = "sha256-O8tQ4geASXt4xDNVjbmKCI2WxegzR3VWEZuOUZMCdLo=";
   };
 
   patches = [
@@ -23,7 +23,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     ./patch-service-directory.patch
   ];
 
-  cargoHash = "sha256-2/lFfhP2414iiH+zG2TvNy6uaCzDldoo7sIfhKrQaFg=";
+  cargoHash = "sha256-so3Y+G31xupCX+nKBBLuB82dEAiCSI4fvJB5hLRsdbA=";
 
   buildFeatures = [
     "standalone"
