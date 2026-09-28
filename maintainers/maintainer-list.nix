@@ -2960,6 +2960,11 @@
     githubId = 1222;
     name = "Aaron VonderHaar";
   };
+  avhb = {
+    name = "avhb";
+    github = "avhb";
+    githubId = 66175168;
+  };
   aviallon = {
     email = "antoine-nixos@lesviallon.fr";
     github = "aviallon";
