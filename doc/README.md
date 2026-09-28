@@ -9,7 +9,11 @@ There are [Unstable (from master)](https://nixos.org/manual/nixpkgs/unstable/) a
 > We are actively restructuring our documentation to be more beginner friendly.
 >
 
-Use our [style guide](./styleguide.md) for more in depth guidance on writing good documentation.
+## Style and conventions
+
+Consult the [style guide](./styleguide.md) for guidance on writing documentation.
+
+Follow Nixpkgs' [commit conventions](https://github.com/NixOS/nixpkgs?tab=contributing-ov-file#commit-conventions).
 
 Documentation about Nixpkgs belongs here.
 This includes getting started guides and onboarding guides for *using* Nixpkgs and the language frameworks it ships.
@@ -151,27 +155,6 @@ Pear
 Watermelon
 :   Green fruit with red flesh
 ```
-
-## Commit conventions
-
-- Make sure you read about the [commit conventions](../CONTRIBUTING.md#commit-conventions) common to Nixpkgs as a whole.
-
-- If creating a commit purely for documentation changes, format the commit message in the following way:
-
-  ```
-  doc/component: (documentation summary)
-
-  (Motivation for change, relevant links, additional information.)
-  ```
-
-  Examples:
-
-  * doc/stdenv: update the kernel config documentation to use `nix-shell`
-  * doc/getting-started: add information about `nix-update-script`
-
-    Closes #216321.
-
-- If the commit contains more than just documentation changes, follow the commit message format relevant for the rest of the changes.
 
 ## Documentation conventions
 
