@@ -14,7 +14,18 @@ in
     services.whisparr = {
       enable = lib.mkEnableOption "Whisparr";
 
-      package = lib.mkPackageOption pkgs "whisparr" { };
+      package =
+        lib.mkPackageOption pkgs "whisparr" {
+          default = null;
+          example = [ "whisparr_3" ];
+          extraDescription = "Must be set to an explicit version.";
+        }
+        // {
+          relatedPackages = [
+            "whisparr_2"
+            "whisparr_3"
+          ];
+        };
 
       dataDir = lib.mkOption {
         type = lib.types.path;
@@ -65,13 +76,11 @@ in
       };
     };
 
-    networking.firewall = lib.mkIf cfg.openFirewall {
-      allowedTCPPorts = [ cfg.settings.server.port ];
-    };
+    networking.firewall = lib.mkIf cfg.openFirewall { allowedTCPPorts = [ cfg.settings.server.port ]; };
 
     users.users = lib.mkIf (cfg.user == "whisparr") {
       whisparr = {
-        group = cfg.group;
+        inherit (cfg) group;
         home = cfg.dataDir;
         isSystemUser = true;
       };
