@@ -1,0 +1,32 @@
+Find and install translation data outside /usr.
+
+Submitted upstream: https://github.com/unknown-horizons/unknown-horizons/pull/2981
+
+diff --git a/horizons/i18n/__init__.py b/horizons/i18n/__init__.py
+index baa675369..0763ba0c9 100644
+--- a/horizons/i18n/__init__.py
++++ b/horizons/i18n/__init__.py
+@@ -98,6 +98,9 @@ def find_available_languages(domain='unknown-horizons', update=False):
+ 
+ 	alternatives = ('content/lang',
+ 	                'build/mo',
++	                # Relative to the content dir we chdir'ed into, so this
++	                # resolves for any install prefix, /app/share included.
++	                '../locale',
+ 	                '/usr/share/locale',
+ 	                '/usr/share/games/locale',
+ 	                '/usr/local/share/locale',
+diff --git a/setup.py b/setup.py
+index 5a8a8036b..3e5b8f1d5 100755
+--- a/setup.py
++++ b/setup.py
+@@ -144,7 +144,8 @@ class _build_i18n(distutils.cmd.Command):
+ 		with open(stats_filename, 'w') as f:
+ 			json.dump(translation_stats, f)
+ 
+-		self.distribution.data_files.append((os.path.join('share', 'locale'), [stats_filename]))
++		self.distribution.data_files.append(
++			(os.path.join('share', 'unknown-horizons', 'content', 'lang'), [stats_filename]))
+ 
+ 		return mo_files
+ 
