@@ -29786,6 +29786,12 @@
       }
     ];
   };
+  traphi = {
+    email = "trauthp@gmail.com";
+    github = "drazhar";
+    githubId = 3040689;
+    name = "Philip Trauth";
+  };
   traverseda = {
     email = "traverse.da@gmail.com";
     github = "traverseda";
