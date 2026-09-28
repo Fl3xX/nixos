@@ -15849,6 +15849,8 @@ self: super: with self; {
 
   pypillowfight = callPackage ../development/python-modules/pypillowfight { };
 
+  pypilot-data = callPackage ../development/python-modules/pypilot-data { };
+
   pypinyin = callPackage ../development/python-modules/pypinyin { };
 
   pypiserver = callPackage ../development/python-modules/pypiserver { };
@@ -18424,6 +18426,8 @@ self: super: with self; {
   rtfde = callPackage ../development/python-modules/rtfde { };
 
   rtfunicode = callPackage ../development/python-modules/rtfunicode { };
+
+  rtimulib2 = callPackage ../development/python-modules/rtimulib2 { };
 
   rtmapi = callPackage ../development/python-modules/rtmapi { };
 
