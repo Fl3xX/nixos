@@ -14,14 +14,14 @@
 
 buildPythonPackage rec {
   pname = "mlxtend";
-  version = "0.24.0";
+  version = "0.25.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "rasbt";
     repo = "mlxtend";
     tag = "v${version}";
-    hash = "sha256-zDMFfm8VqEfAQd11PZNp7HsoLcqrj3nMqnvKhXaeA04=";
+    hash = "sha256-h0qGvQfsWOCP/9XPlih94nGNp4ppplWJ+89qedYipPk=";
   };
 
   build-system = [ setuptools ];
@@ -44,14 +44,10 @@ buildPythonPackage rec {
     "test_invalid_labels_1"
     "test_default"
     "test_nullability"
-    # see upstream issue https://github.com/rasbt/mlxtend/issues/1161
-    # skip the "TypeError: only 0-dimensional arrays can be converted to Python scalars" failures in test_perceptron
-    "test_standardized_iris_data"
-    "test_progress_1"
-    "test_progress_2"
-    "test_progress_3"
-    "test_score_function"
-    "test_nonstandardized_iris_data"
+    # see upstream issue https://github.com/rasbt/mlxtend/issues/1200
+    # test failures after updating scikit-learn 1.8.0->1.9.0
+    "test_sample_weight"
+    "test_fit_params"
   ];
 
   disabledTestPaths = [
