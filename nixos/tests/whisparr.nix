@@ -1,13 +1,13 @@
-{ lib, ... }:
 {
   name = "whisparr";
   meta.maintainers = [ ];
 
-  nodes.machine =
-    { pkgs, ... }:
-    {
-      services.whisparr.enable = true;
+  nodes.machine = { pkgs, ... }: {
+    services.whisparr = {
+      enable = true;
+      package = pkgs.whisparr;
     };
+  };
 
   testScript = ''
     machine.wait_for_unit("whisparr.service")
