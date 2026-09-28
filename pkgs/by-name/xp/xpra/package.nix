@@ -24,7 +24,7 @@
   libwebp,
   systemd,
   lz4,
-  nv-codec-headers-10,
+  nv-codec-headers-13,
   nvidia_x11 ? null,
   pam,
   pandoc,
@@ -56,10 +56,10 @@
   libxkbfile,
   xorg-server,
   xxhash,
-  clang,
   withHtml ? true,
   xpra-html5,
   udevCheckHook,
+  versionCheckHook,
 }:
 
 let
@@ -90,7 +90,7 @@ let
       }
       ''
         mkdir -p $out/include $out/lib/pkgconfig
-        cp ${nv-codec-headers-10}/include/ffnvcodec/nvEncodeAPI.h $out/include
+        cp ${nv-codec-headers-13}/include/ffnvcodec/nvEncodeAPI.h $out/include
         substituteAll ${./nvenc.pc} $out/lib/pkgconfig/nvenc.pc
       '';
 
@@ -105,7 +105,9 @@ in
 effectiveBuildPythonApplication rec {
   pname = "xpra";
   version = "6.5.4";
-  format = "setuptools";
+  pyproject = true;
+
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "Xpra-org";
@@ -134,7 +136,7 @@ effectiveBuildPythonApplication rec {
   };
 
   nativeBuildInputs = [
-    clang
+    python3.pkgs.setuptools
     cython
     gobject-introspection
     pkg-config
@@ -142,7 +144,7 @@ effectiveBuildPythonApplication rec {
     pandoc
     udevCheckHook
   ]
-  ++ lib.optionals withNvenc [ cudaPackages.cudatoolkit ];
+  ++ lib.optionals withNvenc [ cudaPackages.cuda_nvcc ];
 
   buildInputs = [
     libx11
@@ -284,9 +286,9 @@ effectiveBuildPythonApplication rec {
     ln -s ${xpra-html5}/share/xpra/www $out/share/xpra/www;
   '';
 
-  # doCheck = false;
-
   enableParallelBuilding = true;
+
+  nativeCheckInputs = [ versionCheckHook ];
 
   passthru = {
     inherit xf86videodummy;
