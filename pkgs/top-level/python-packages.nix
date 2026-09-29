@@ -11314,6 +11314,8 @@ self: super: with self; {
 
   mqtt2influxdb = callPackage ../development/python-modules/mqtt2influxdb { };
 
+  mrcfile = callPackage ../development/python-modules/mrcfile { };
+
   mrjob = callPackage ../development/python-modules/mrjob { };
 
   mrsqm = callPackage ../development/python-modules/mrsqm { };
