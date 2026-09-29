@@ -698,6 +698,7 @@ in
     inherit runTest;
     forgejoPackage = pkgsLinux.forgejo-lts;
   };
+  freenet-core = runTest ./freenet-core.nix;
   freescout = import ./freescout {
     inherit runTest;
   };
