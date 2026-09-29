@@ -9,6 +9,24 @@ let
 
   # By default a StateDirectory is used; anything else needs its own directory and a hole in the unit's mount namespace.
   isDefaultDataDir = cfg.dataDir == "/var/lib/comfyui";
+
+  package = cfg.package.override (oldArgs: {
+    extraPackages = ps: (oldArgs.extraPackages or (_: [ ]) ps) ++ (cfg.extraPackages ps);
+    cudaSupport = cfg.acceleration == "cuda";
+  });
+
+  modelDrvs = map (m: {
+    inherit m;
+    drv = pkgs.fetchurl (lib.filterAttrs (n: _: n == "name" || n == "url" || n == "hash") m);
+  }) cfg.models;
+
+  modelSymlinks = lib.concatMapStringsSep "\n" (
+    x:
+    lib.concatMapStringsSep "\n" (p: ''
+      mkdir -p ${lib.escapeShellArg "${cfg.dataDir}/models/${p}"}
+      ln -sn ${lib.escapeShellArg "${x.drv}"} ${lib.escapeShellArg "${cfg.dataDir}/models/${p}/${x.m.name}"}
+    '') x.m.installPaths
+  ) modelDrvs;
 in
 {
   options = {
@@ -27,6 +45,32 @@ in
           Any other directory is created with systemd-tmpfiles and bind-mounted into the service.
 
           Existing state is not migrated, you need to move it yourself.
+        '';
+      };
+
+      # The package with all module overrides applied (extraPackages, cudaSupport).
+      # Exposed so tests can inspect the resulting Python environment.
+      finalPackage = lib.mkOption {
+        type = lib.types.package;
+        internal = true;
+        readOnly = true;
+        default = package;
+        description = "The comfyui package with module overrides applied.";
+      };
+
+      acceleration = lib.mkOption {
+        type = lib.types.enum [
+          "cpu"
+          "cuda"
+        ];
+        default = if config.nixpkgs.config.cudaSupport then "cuda" else "cpu";
+        defaultText = lib.literalExpression "if config.nixpkgs.config.cudaSupport then \"cuda\" else \"cpu\"";
+        example = "cuda";
+        description = ''
+          Specifies the device to use for hardware acceleration.
+
+          - `"cpu"`: pass `--cpu` to the server. Not recommended for production use as it is very slow.
+          - `"cuda"`: enable CUDA support on the package; ComfyUI selects the CUDA device automatically.
         '';
       };
 
@@ -67,16 +111,90 @@ in
           Flags set by the module are prepended with `lib.mkBefore`, so any user supplied flag wins over that.
         '';
       };
+
+      models = lib.mkOption {
+        type = lib.types.listOf (
+          lib.types.submodule {
+            options = {
+              name = lib.mkOption {
+                type = lib.types.str;
+                description = ''
+                  The model file name, used as the link name in `models/<installPath>/<name>`.
+                  It must be unique within the same `<installPath>`, to avoid conflicts.
+                '';
+              };
+              url = lib.mkOption {
+                type = lib.types.str;
+                description = ''
+                  The download URL of the model file.
+                  Pinned-resolve URLs (e.g. HuggingFace's `/resolve/<commit>/<file>`) are recommended to have a stable hash.
+                '';
+              };
+              hash = lib.mkOption {
+                type = lib.types.str;
+                example = lib.fakeHash;
+                description = ''
+                  The SRI hash of the model file. Generate it with `nix-prefetch-url <url>`,
+                  or set this to `lib.fakeHash`, build once and copy the hash from the error message.
+                '';
+              };
+              installPaths = lib.mkOption {
+                # A directory string is converted to a list.
+                type =
+                  with lib.types;
+                  coercedTo (strMatching "[A-Za-z0-9_-]+") lib.singleton (
+                    nonEmptyListOf (strMatching "[A-Za-z0-9_-]+")
+                  );
+                description = ''
+                  String or list of target subdirectory names below `models/`, such as `upscale_models`, `loras`, `checkpoints`.
+                  Write bare directory names (the module assembles them into `models/<installPath>`,
+                  one symlink per install path); a single string is also accepted and upgraded to a one-element list.
+                '';
+                example = [ "upscale_models" ];
+              };
+            };
+          }
+        );
+        default = [ ];
+        example = lib.literalExpression ''
+          [ {
+            name = "RealESRGAN_x4plus_anime_6B.pth";
+            url = "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth";
+            hash = "sha256-+HLYN9PJDtLgUie+1xGvVnGm/RyffX6RyRGmHxVemdo=";
+            installPaths = "upscale_models";
+          } ]
+        '';
+        description = ''
+          ComfyUI models to fetch and symlink into `''${services.comfyui.dataDir}/models/<installPath>/<name>`.
+          Files placed manually in the `models` directory are left untouched.
+        '';
+      };
+
+      extraPackages = lib.mkOption {
+        type = lib.types.functionTo (lib.types.listOf lib.types.package);
+        default = _: [ ];
+        defaultText = lib.literalExpression "python3Packages: [ ]";
+        example = lib.literalExpression ''
+          python3Packages: with python3Packages; [ flask ]
+        '';
+        description = ''
+          Extra packages to add to ComfyUI's Python environment,
+          typically to satisfy custom node runtime dependencies.
+        '';
+      };
     };
   };
 
   config = lib.mkIf cfg.enable {
-    services.comfyui.extraArgs = lib.mkBefore [
-      "--base-directory=${cfg.dataDir}"
-      "--database-url=sqlite:///${cfg.dataDir}/user/comfyui.db"
-      "--listen=${lib.concatStringsSep "," cfg.listen}"
-      "--port=${toString cfg.port}"
-    ];
+    services.comfyui.extraArgs = lib.mkBefore (
+      [
+        "--base-directory=${cfg.dataDir}"
+        "--database-url=sqlite:///${cfg.dataDir}/user/comfyui.db"
+        "--listen=${lib.concatStringsSep "," cfg.listen}"
+        "--port=${toString cfg.port}"
+      ]
+      ++ lib.optionals (cfg.acceleration == "cpu") [ "--cpu" ]
+    );
 
     # owner read back from the unit, not spelled out: StateDirectory= infers it, this rule has to be told
     systemd.tmpfiles.settings = lib.mkIf (!isDefaultDataDir) {
@@ -98,10 +216,21 @@ in
             cp --no-preserve=all -r ${cfg.package}/share/comfyui/$d "${cfg.dataDir}/"
           fi
         done
+
+        # Remove all symlinks pointing into /nix/store, then relink them, so that no stale ones are left behind.
+        readarray -d "" stale < <(find "${cfg.dataDir}/models" -type l -print0)
+        for link in "''${stale[@]}"; do
+          if [[ "$(readlink "$link")" == ${lib.escapeShellArg builtins.storeDir}/* ]]; then
+            rm "$link"
+          fi
+        done
+
+        # Rebuild model symlinks
+        ${modelSymlinks}
       '';
 
       serviceConfig = {
-        ExecStart = "${lib.getExe cfg.package} ${lib.escapeShellArgs cfg.extraArgs}";
+        ExecStart = "${lib.getExe cfg.finalPackage} ${lib.escapeShellArgs cfg.extraArgs}";
         Group = "comfyui";
         Restart = "always";
         RestartSec = "5sec"; # don't crash loop immediately
@@ -160,5 +289,8 @@ in
     };
   };
 
-  meta.maintainers = pkgs.comfyui.meta.maintainers;
+  meta = {
+    doc = ./comfyui.md;
+    maintainers = pkgs.comfyui.meta.maintainers;
+  };
 }
