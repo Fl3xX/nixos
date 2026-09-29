@@ -11,6 +11,7 @@
   coreutils,
   curl,
   gawk,
+  nix,
   nix-prefetch-darcs,
   nix-prefetch-fossil,
   nix-prefetch-git,
@@ -21,7 +22,7 @@
 
 ocamlPackages.buildDunePackage (finalAttrs: {
   pname = "nixtamal";
-  version = "2.0.0";
+  version = "2.0.1";
   release_year = 2026;
 
   minimalOCamlVersion = "5.3";
@@ -30,7 +31,7 @@ ocamlPackages.buildDunePackage (finalAttrs: {
     url = "https://darcs.toastal.in.th/nixtamal/stable/";
     mirrors = [ "https://smeder.ee/~toastal/nixtamal.darcs" ];
     rev = finalAttrs.version;
-    hash = "sha256-7DW0M1rjEMf6hk9niMf9LShD5+xsY2MA4Lf8DElfx3g=";
+    hash = "sha256-KECJUCvlQz6YpDpktlmLSMiBZPn4qZkA0Ye3aaHHi0Q=";
   };
 
   nativeBuildInputs = [
@@ -69,6 +70,10 @@ ocamlPackages.buildDunePackage (finalAttrs: {
     saturn
     stdint
     xdg
+  ];
+
+  nativeCheckInputs = [
+    nix
   ];
 
   checkInputs = with ocamlPackages; [
