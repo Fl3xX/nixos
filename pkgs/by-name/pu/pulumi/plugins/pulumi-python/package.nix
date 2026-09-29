@@ -12,7 +12,7 @@ buildGoModule (finalAttrs: {
 
   sourceRoot = "${finalAttrs.src.name}/sdk/python/cmd/pulumi-language-python";
 
-  vendorHash = "sha256-nm9749kcfio/q2Y5XxqdiQ8IwLP/2jjZOEBF9SCyJAA=";
+  vendorHash = "sha256-1MBho2KqfMBXso5Gekok/+lgew2gTLrYxwir1la/VAQ=";
 
   ldflags = [
     "-s"
@@ -54,6 +54,7 @@ buildGoModule (finalAttrs: {
     description = "Language host for Pulumi programs written in Python";
     license = lib.licenses.asl20;
     mainProgram = "pulumi-language-python";
-    maintainers = lib.teams.pulumi.members;
+    maintainers = [ lib.maintainers.wrbbz ];
+    teams = [ lib.teams.pulumi ];
   };
 })
