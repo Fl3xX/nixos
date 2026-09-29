@@ -38,7 +38,7 @@ maven.buildMavenPackage (finalAttrs: {
     mkdir -p $out/bin $out/share/jd-cli
     install -Dm644 jd-cli/target/jd-cli.jar $out/share/jd-cli
 
-    makeWrapper ${jre}/bin/java $out/bin/jd-cli \
+    makeWrapper ${lib.getExe jre} $out/bin/jd-cli \
       --add-flags "-jar $out/share/jd-cli/jd-cli.jar"
 
     runHook postInstall
@@ -210,7 +210,7 @@ maven_4.buildMavenPackage (finalAttrs: {
     mkdir -p $out/bin $out/share/jd-cli
     install -Dm644 jd-cli/target/jd-cli.jar $out/share/jd-cli
 
-    makeWrapper ${jre}/bin/java $out/bin/jd-cli \
+    makeWrapper ${lib.getExe jre} $out/bin/jd-cli \
       --add-flags "-jar $out/share/jd-cli/jd-cli.jar"
 
     runHook postInstall
@@ -520,7 +520,7 @@ stdenv.mkDerivation (finalAttrs: {
     install -Dm644 target/maven-demo-${finalAttrs.version}.jar $out/share/java
     # create a wrapper that will automatically set the classpath
     # this should be the paths from the dependency derivation
-    makeWrapper ${jre}/bin/java $out/bin/maven-demo \
+    makeWrapper ${lib.getExe jre} $out/bin/maven-demo \
           --add-flags "-classpath $out/share/java/maven-demo-${finalAttrs.version}.jar:''${classpath#:}" \
           --add-flags "Main"
 
@@ -615,7 +615,7 @@ stdenv.mkDerivation (finalAttrs: {
     install -Dm644 target/maven-demo-${finalAttrs.version}.jar $out/share/java
     # create a wrapper that will automatically set the classpath
     # this should be the paths from the dependency derivation
-    makeWrapper ${jre}/bin/java $out/bin/maven-demo \
+    makeWrapper ${lib.getExe jre} $out/bin/maven-demo \
           --add-flags "-jar $out/share/java/maven-demo-${finalAttrs.version}.jar"
 
     runHook postInstall
